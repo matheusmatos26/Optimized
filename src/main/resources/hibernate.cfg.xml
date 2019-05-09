@@ -24,8 +24,8 @@
 	
 		<property name="connection.url">jdbc:mysql://localhost/optimized</property>
 		<property name="connection.username">root</property>
-		<property name="connection.password">root</property>
-		-->
+		<property name="connection.password">root</property>-->
+		
 		
 
 		<!-- Pool de Conexões -->
