@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	template="/templates/modeloGeral.xhtml">
+
+	<ui:define name="conteudo">
+
+		<h:form id="formListagem">
+			<p:panel header="Consulta - Lista">
+
+				<p:dataTable id="tabela" emptyMessage="Nenhum registro encontrado"
+					paginator="true" paginatorPosition="bottom"
+					value="#{consultaBean.consultas}" var="consulta" rows="7">
+
+					<f:facet name="header">
+						<p:commandButton value="Novo"
+							rendered="#{autenticacaoBean.temPermissoes(['A'])}"
+							oncomplete="PF('dialogo').show();"
+							actionListener="#{consultaBean.novo()}"
+							update=":mensagem :formCadastro:painel :formCadastro2:painel2 :formCadastro2:tabela2">
+							<f:actionListener
+								type="org.omnifaces.eventlistener.ResetInputAjaxActionListener" />
+						</p:commandButton>
+						
+						<p:commandButton value="Imprimir"
+							actionListener="#{consultaBean.imprimir}">
+
+							<f:actionListener
+								type="org.omnifaces.eventlistener.ResetInputAjaxActionListener" />
+
+						</p:commandButton>
+
+					</f:facet>
+
+
+					<p:column headerText="Paciente"
+						filterBy="#{consulta.paciente.nome}" filterMatchMode="contains">
+						<h:outputText value="#{consulta.paciente.nome}" />
+					</p:column>
+
+					<p:column headerText="Médico" filterBy="#{consulta.medico.nome}"
+						filterMatchMode="contains">
+						<h:outputText value="#{consulta.medico.nome}" />
+					</p:column>
+
+					<p:column headerText="Data" filterBy="#{consulta.data}"
+						filterMatchMode="contains">
+						<h:outputText value="#{consulta.data}" />
+					</p:column>
+
+					<p:column headerText="Especialidade"
+						filterBy="#{consulta.medico.especialidade.especialidade}"
+						filterMatchMode="contains">
+						<h:outputText
+							value="#{consulta.medico.especialidade.especialidade}" />
+					</p:column>
+
+					<p:column headerText="Finalizado" sortBy="#{consulta.finalizado}"
+						filterBy="#{consulta.finalizado}">
+						<h:selectBooleanCheckbox value="#{consulta.finalizado}"
+							disabled="true" />
+					</p:column>
+
+					<p:column headerText="Opções">
+						<p:commandButton icon="ui-icon-trash"
+							actionListener="#{consultaBean.excluir}"
+							rendered="#{autenticacaoBean.temPermissoes(['A'])}"
+							update=":mensagem :formCadastro:painel :formListagem:tabela :formCadastro2:painel2 :formCadastro2:tabela2">
+
+							<p:confirm header="Excluir registro"
+								message="Deseja excluir o registro" icon="ui-icon-alert" />
+							<f:attribute name="consultaSelecionado" value="#{consulta}" />
+
+						</p:commandButton>
+
+						<p:commandButton icon="ui-icon-pencil"
+							actionListener="#{consultaBean.editar}"
+							update=":mensagem :formCadastro:painel :formCadastro2:painel2 :formCadastro2:tabela2"
+							oncomplete="PF('dialogo').show();">
+
+							<f:actionListener
+								type="org.omnifaces.eventlistener.ResetInputAjaxActionListener" />
+
+							<f:attribute name="consultaSelecionado" value="#{consulta}" />
+						</p:commandButton>
+
+
+						<p:commandButton icon="ui-icon-note"
+							rendered="#{autenticacaoBean.temPermissoes(['A','M'])}"
+							actionListener="#{consultaBean.prontuario}"
+							update=":mensagem :formCadastro2:painel2 :formCadastro2:tabela2"
+							oncomplete="PF('dialogo2').show();">
+
+							<f:actionListener
+								type="org.omnifaces.eventlistener.ResetInputAjaxActionListener" />
+
+							<f:attribute name="consultaSelecionado" value="#{consulta}" />
+						</p:commandButton>
+						
+						
+						<p:commandButton icon="ui-icon-print"
+							rendered="#{autenticacaoBean.temPermissoes(['A','M'])}"
+							actionListener="#{consultaBean.receita}"
+							update=":mensagem :formCadastro2:painel2 :formCadastro2:tabela2" >
+
+							<f:actionListener
+								type="org.omnifaces.eventlistener.ResetInputAjaxActionListener" />
+
+							<f:attribute name="consultaSelecionado" value="#{consulta}" />
+						</p:commandButton>
+
+
+					</p:column>
+
+				</p:dataTable>
+
+				<p:confirmDialog global="true">
+					<p:commandButton value="Sim" type="button"
+						styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+					<p:commandButton value="Não" type="button"
+						styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+				</p:confirmDialog>
+
+			</p:panel>
+		</h:form>
+		<p:dialog widgetVar="dialogo" id="mpdi" header="Usuários - Cadastro"
+			draggable="false" resizable="false" modal="false">
+
+			<h:form id="formCadastro">
+				<h:panelGrid id="painel" columns="2">
+
+					<p:outputLabel for="paciente" value="Paciente:"
+						rendered="#{autenticacaoBean.temPermissoes(['A'])}" />
+					<p:selectOneMenu id="paciente" filter="true" required="true"
+					rendered="#{autenticacaoBean.temPermissoes(['A'])}"
+						requiredMessage="Campo obrigatório"
+						converter="omnifaces.SelectItemsConverter"
+						value="#{consultaBean.consulta.paciente}">
+						<f:selectItem noSelectionOption="true"
+							itemLabel="Selecione um paciente" />
+						<f:selectItems value="#{consultaBean.pacientes}" var="paciente"
+							itemValue="#{paciente}" itemLabel="#{paciente.nome}" />
+					</p:selectOneMenu>
+
+					<p:outputLabel for="especialidade" value="Especialidade:"
+					rendered="#{autenticacaoBean.temPermissoes(['A'])}"/>
+					<p:selectOneMenu id="especialidade" filter="true"
+						converter="omnifaces.SelectItemsConverter"
+						value="#{consultaBean.especialidade}"
+						rendered="#{autenticacaoBean.temPermissoes(['A'])}">
+						<f:selectItem noSelectionOption="true"
+							itemLabel="Selecione uma especialiadade" />
+						<f:selectItems value="#{consultaBean.especialidades}"
+							var="especialidade" itemValue="#{especialidade}"
+							itemLabel="#{especialidade.especialidade}" />
+						<p:ajax listener="#{consultaBean.popular}"
+							update=":formCadastro:medico" />
+					</p:selectOneMenu>
+
+
+					<p:outputLabel for="medico" value="Médico:" 
+					rendered="#{autenticacaoBean.temPermissoes(['A'])}"/>
+					<p:selectOneMenu id="medico" filter="true" required="true"
+						requiredMessage="Campo obrigatório"
+						converter="omnifaces.SelectItemsConverter"
+						value="#{consultaBean.consulta.medico}"
+						rendered="#{autenticacaoBean.temPermissoes(['A'])}">
+						<f:selectItem noSelectionOption="true"
+							itemLabel="Selecione um médico" />
+						<f:selectItems value="#{consultaBean.medicos}" var="medico"
+							itemValue="#{medico}" itemLabel="#{medico.nome}" />
+					</p:selectOneMenu>
+
+
+					<p:outputLabel for="data" value="Data:" 
+					rendered="#{autenticacaoBean.temPermissoes(['A'])}"/>
+					<p:calendar pattern="MM/dd/yyyy" id="data" size="20"
+						value="#{consultaBean.consulta.data}" locale="pt_BR"
+						rendered="#{autenticacaoBean.temPermissoes(['A'])}" />
+
+					<p:outputLabel for="consultaFinalizada" value="Finalizada:" />
+					<p:selectBooleanCheckbox id="consultaFinalizada"
+						value="#{consultaBean.consulta.finalizado}" />
+
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+					<p:commandButton value="Salvar"
+						actionListener="#{consultaBean.salvar()}"
+						update=":mensagem :formCadastro:painel :formListagem:tabela :formCadastro2:painel2 :formCadastro2:tabela2" />
+
+					<p:commandButton value="Cancelar"
+						oncomplete="PF('dialogo').hide();" />
+
+				</h:panelGrid>
+			</h:form>
+		</p:dialog>
+
+
+
+
+
+
+
+
+		<p:dialog widgetVar="dialogo2" id="mpdi2"
+			header="Prontuário - Cadastro" draggable="true" resizable="false"
+			modal="false" height="400" width="600" closable="false">
+
+			<h:form id="formCadastro2">
+				<h:panelGrid id="painel2" columns="2">
+
+					<p:outputLabel for="descricao" value="Descrição:" />
+					<p:inputTextarea height="100" id="descricao"
+						value="#{consultaBean.consulta.descricao}" required="true"
+						requiredMessage="Campo Obrigatório" />
+
+									<p:outputLabel for="receita" value="Receita:" />
+					<p:inputTextarea height="100" id="receita"
+						value="#{consultaBean.consulta.receita}" required="true"
+						requiredMessage="Campo Obrigatório" />
+
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+					<p:commandButton value="Salvar"
+						actionListener="#{consultaBean.salvar()}"
+						update=":mensagem :formCadastro2:painel2 :formCadastro2:tabela2"
+						oncomplete="PF('dialogo2').hide()" />
+
+					<p:commandButton value="Cancelar"
+						oncomplete="PF('dialogo2').hide()" />
+				</h:panelGrid>
+
+
+				<p:dataTable id="tabela2" emptyMessage="Nenhum registro encontrado"
+					paginator="true" paginatorPosition="bottom"
+					value="#{consultaBean.prontuarios}" var="consulta" rows="7">
+
+
+					<p:column headerText="Consulta">
+						<h:outputText
+							value="Data: 	  #{consulta.data}  ||
+								 Paciente: #{consulta.paciente.nome} ||
+								 Médico:  #{consulta.medico.nome} ||
+								 Descrição: #{consulta.descricao} ||
+								 Receita: #{consulta.receita}
+								  " />
+					</p:column>
+
+
+
+				</p:dataTable>
+
+
+			</h:form>
+		</p:dialog>
+
+
+
+	</ui:define>
+</ui:composition>

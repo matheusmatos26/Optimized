@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	template="/templates/modeloGeral.xhtml">
+
+
+	<ui:define name="conteudo">
+		<h:body>
+			<h:form id="formListagem">
+				
+						<p:outputLabel for="pep" value="Paciente: " />
+						<p:selectOneMenu id="pep" filter="true" filterMatchMode="contains"
+							value="#{usuariosBean.usuario}"
+							converter="omnifaces.SelectItemsConverter" required="true"
+							requiredMessage="Campo obrigatório"
+							>
+						
+							
+							<f:selectItem noSelectionOption="true" itemLabel="Selecione " />
+							<f:selectItems value="#{usuariosBean.usuarios}" var="usuario"
+								itemValue="#{usuario}"
+								itemLabel="#{usuario.cpf} - #{usuario.nome}" />
+								
+							</p:selectOneMenu>
+						
+						<p:commandButton
+						
+						value = "imprimir"
+						actionListener="#{consultaBean.imprimir()}"
+						update=":mensagem :formListagem:pep"
+						>
+						
+						
+							<f:actionListener
+								type="org.omnifaces.eventlistener.ResetInputAjaxActionListener" />
+						
+						</p:commandButton>
+				</h:form>
+
+
+		</h:body>
+	</ui:define>
+</ui:composition>

@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	template="/templates/modeloGeral.xhtml">
+
+	<ui:define name="conteudo">
+
+		<h:form id="formListagem">
+			<p:panel header="Usuários - Lista">
+
+				<p:dataTable id="tabela" emptyMessage="Nenhum registro encontrado"
+					paginator="true" paginatorPosition="bottom"
+					value="#{usuariosBean.usuarios}" var="usuario" rows="7">
+
+					<f:facet name="header">
+						<p:commandButton value="Novo" oncomplete="PF('dialogo').show();"
+							actionListener="#{usuariosBean.novo()}"
+							update=":mensagem :formCadastro:painel">
+							<f:actionListener
+								type="org.omnifaces.eventlistener.ResetInputAjaxActionListener" />
+						</p:commandButton>
+
+					</f:facet>
+
+
+					<p:column headerText="Nome" filterBy="#{usuario.nome}"
+						filterMatchMode="contains">
+						<h:outputText value="#{usuario.nome}" />
+					</p:column>
+
+					<p:column headerText="CPF"  filterBy="#{usuario.cpf}"
+						filterMatchMode="contains">
+						<h:outputText value="#{usuario.cpf}" />
+					</p:column>
+
+					<p:column headerText="E-mail" filterBy="#{usuario.email}"
+						filterMatchMode="contains">
+						<h:outputText value="#{usuario.email}" />
+					</p:column>
+
+					<p:column headerText="Perfil" filterBy="#{usuario.perfil.descricao}"
+						filterMatchMode="contains">
+						<h:outputText value="#{usuario.perfil.descricao}" />
+					</p:column>
+
+					<p:column headerText="Opções">
+						<p:commandButton icon="ui-icon-trash"
+							actionListener="#{usuariosBean.excluir}"
+							update=":mensagem :formListagem:tabela">
+
+							<p:confirm header="Excluir registro"
+								message="Deseja excluir o registro" icon="ui-icon-alert" />
+							<f:attribute name="usuarioSelecionado" value="#{usuario}" />
+
+						</p:commandButton>
+
+						<p:commandButton icon="ui-icon-pencil"
+							actionListener="#{usuariosBean.editar}"
+							update=":mensagem :formCadastro:painel"
+							oncomplete="PF('dialogo').show();">
+
+							<f:actionListener
+								type="org.omnifaces.eventlistener.ResetInputAjaxActionListener" />
+
+							<f:attribute name="usuarioSelecionado" value="#{usuario}" />
+						</p:commandButton>
+
+					</p:column>
+
+				</p:dataTable>
+
+				<p:confirmDialog global="true">
+					<p:commandButton value="Sim" type="button"
+						styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+					<p:commandButton value="Não" type="button"
+						styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+				</p:confirmDialog>
+
+			</p:panel>
+		</h:form>
+		<p:dialog widgetVar="dialogo" id="mpdi" header="Usuários - Cadastro"
+			draggable="false" resizable="false" modal="false">
+
+			<h:form id="formCadastro">
+				<h:panelGrid id="painel" columns="2">
+
+					<p:outputLabel for="nomeUsuario" value="Nome:" />
+					<p:inputText id="nomeUsuario" maxlength="100" size="30"
+						value="#{usuariosBean.usuario.nome}" required="true"
+						requiredMessage="Campo obrigatório" />
+
+					<p:outputLabel for="cpfUsuario" value="CPF:" />
+					<p:inputMask id="cpfUsuario" mask="999.999.999-99" size="15"
+						value="#{usuariosBean.usuario.cpf}" required="true"
+						requiredMessage="Campo obrigatório" />
+
+					<p:outputLabel for="enderecoUsuario" value="Endereço:" />
+					<p:inputText id="enderecoUsuario" maxlength="200" size="30"
+						value="#{usuariosBean.usuario.endereco}" required="true"
+						requiredMessage="Campo obrigatório" />
+
+					<p:outputLabel for="bairroUsuario" value="Bairro:" />
+					<p:inputText id="bairroUsuario" maxlength="200" size="15"
+						value="#{usuariosBean.usuario.bairro}" required="true"
+						requiredMessage="Campo obrigatório" />
+
+
+					<p:outputLabel for="cepUsuario" value="CEP:" />
+					<p:inputMask id="cepUsuario" mask="99999-999" size="15"
+						value="#{usuariosBean.usuario.cep}" required="true"
+						requiredMessage="Campo obrigatório" />
+
+
+					<p:outputLabel for="estado" value="Estado:" />
+					<p:selectOneMenu id="estado" filter="true"
+						converter="omnifaces.SelectItemsConverter"
+						value="#{usuariosBean.estado}">
+						<f:selectItem noSelectionOption="true"
+							itemLabel="Selecione um estado" />
+						<f:selectItems value="#{usuariosBean.estados}" var="estado"
+							itemValue="#{estado}" itemLabel="#{estado.nome}" />
+						<p:ajax listener="#{usuariosBean.popular}"
+							update=":formCadastro:cidade" />
+					</p:selectOneMenu>
+
+
+					<p:outputLabel for="cidade" value="Cidade:" />
+					<p:selectOneMenu id="cidade" filter="true" required="true"
+						requiredMessage="Campo obrigatório"
+						converter="omnifaces.SelectItemsConverter"
+						value="#{usuariosBean.usuario.cidade}">
+						<f:selectItem noSelectionOption="true"
+							itemLabel="Selecione uma cidade" />
+						<f:selectItems value="#{usuariosBean.cidades}" var="cidade"
+							itemValue="#{cidade}" itemLabel="#{cidade.nome}" />
+					</p:selectOneMenu>
+
+
+					<p:outputLabel for="emailUsuario" value="E-mail:" />
+					<p:inputText id="emailUsuario" maxlength="30" size="30"
+						required="true" value="#{usuariosBean.usuario.email}" />
+
+					<p:outputLabel for="senhaUsuario" value="Senha:" />
+					<p:password id="senhaUsuario" maxlength="14" size="30"
+						required="true" value="#{usuariosBean.usuario.senha}" />
+
+
+					<p:outputLabel for="telefoneUsuario" value="Telefone:" />
+					<p:inputMask id="telefoneUsuario" mask="(99)99999-9999" size="16"
+						value="#{usuariosBean.usuario.telefone}" required="true"
+						requiredMessage="Campo obrigatório" />
+
+					<p:outputLabel for="perfilUsuario" value="Perfil:" />
+					<p:selectOneMenu id="perfilUsuario" filter="true"
+						filterMatchMode="contains" value="#{usuariosBean.usuario.perfil}"
+						converter="omnifaces.SelectItemsConverter" required="true"
+						requiredMessage="Campo obrigatório">
+						<f:selectItem noSelectionOption="true" itemLabel="Selecione " />
+						<f:selectItems value="#{usuariosBean.perfis}" var="perfil"
+							itemValue="#{perfil}" itemLabel="#{perfil.descricao}" />
+					</p:selectOneMenu>
+
+					<p:outputLabel for="especialidadeUsuario" value="Especialidade:" />
+					<p:selectOneMenu id="especialidadeUsuario" filter="true"
+						filterMatchMode="contains"
+						value="#{usuariosBean.usuario.especialidade}"
+						converter="omnifaces.SelectItemsConverter"
+						requiredMessage="Campo obrigatório">
+						<f:selectItem noSelectionOption="true" itemLabel="Selecione " />
+						<f:selectItems value="#{usuariosBean.especialidades}"
+							var="especialidade" itemValue="#{especialidade}"
+							itemLabel="#{especialidade.especialidade}" />
+					</p:selectOneMenu>
+
+
+
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+					<p:commandButton value="Salvar"
+						actionListener="#{usuariosBean.salvar()}"
+						update=":mensagem :formCadastro:painel :formListagem:tabela" />
+
+					<p:commandButton value="Cancelar"
+						oncomplete="PF('dialogo').hide();" />
+				</h:panelGrid>
+			</h:form>
+		</p:dialog>
+
+	</ui:define>
+</ui:composition>
